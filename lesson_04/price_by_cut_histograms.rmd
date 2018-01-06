@@ -1,0 +1,10 @@
+# Break out the histogram of diamond prices by cut.
+
+# You should have five histograms in separate
+# panels on your resulting plot.
+
+# TYPE YOUR CODE BELOW THE LINE
+# ======================================================
+ggplot(aes(x = price), data = diamonds) +
+geom_histogram() +
+facet_wrap(~cut)

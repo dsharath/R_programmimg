@@ -1,0 +1,128 @@
+# Your task is to investigate the distribution of your friends'
+# birth months and days.
+
+# Here some questions you could answer, and we hope you think of others.
+
+# **********************************************************************
+
+# How many people share your birthday? Do you know them?
+# (Reserve time with them or save money to buy them a gift!)
+
+# Which month contains the most number of birthdays?
+
+# How many birthdays are in each month?
+
+# Which day of the year has the most number of birthdays?
+
+# Do you have at least 365 friends that have birthdays on everyday
+# of the year?
+
+# **********************************************************************
+
+# You will need to do some data munging and additional research to
+# complete this task. This task won't be easy, and you may encounter some
+# unexpected challenges along the way. We hope you learn a lot from it though.
+
+# You can expect to spend 30 min or more on this task depending if you
+# use the provided data or obtain your personal data. We also encourage you
+# to use the lubridate package for working with dates. Read over the documentation
+# in RStudio and search for examples online if you need help.
+
+# You'll need to export your Facebooks friends' birthdays to a csv file.
+# You may need to create a calendar of your Facebook friends’ birthdays
+# in a program like Outlook or Gmail and then export the calendar as a
+# csv file.
+
+# Once you load the data into R Studio, you can use the strptime() function
+# to extract the birth months and birth days. We recommend looking up the
+# documentation for the function and finding examples online.
+
+# We've included some links in the Instructor Notes to help get you started.
+
+# Once you've completed your investigation, create a post in the discussions that includes:
+#       1. any questions you answered, your observations, and summary statistics
+#       2. snippets of code that created the plots
+#       3. links to the images of your plots
+
+# You can save images by using the ggsave() command.
+# ggsave() will save the last plot created.
+# For example...
+#                  qplot(x = price, data = diamonds)
+#                  ggsave('priceHistogram.png')
+
+# ggsave currently recognises the extensions eps/ps, tex (pictex),
+# pdf, jpeg, tiff, png, bmp, svg and wmf (windows only).
+
+# Copy and paste all of the code that you used for
+# your investigation below the line. Submit it when you are ready.
+# ===============================================================================
+
+
+# install.packages("lubridate")
+library(lubridate)
+
+birthdate <- read.csv(file = "birthdaysExample.csv", header = TRUE, sep = ",", dec = ".", blank.lines.skip = TRUE, stringsAsFactors = FALSE, check.names = FALSE, skipNul = TRUE)
+
+birthdate[, "birthday"] <- as.Date(birthdate$dates, format = "%m/%d/%y")
+birthdate[, "year"] <- year(birthdate$birthday)
+birthdate[, "day"] <- day(birthdate$birthday)
+birthdate[, "month"] <- month(birthdate$birthday)
+birthdate[, "monthName"] <- format(birthdate$birthday, "%b")
+month_Name <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+birthdate$monthName <- ordered(birthdate$monthName, levels = month_Name)
+summary(birthdate)
+
+# 1. count where month = 4, day = 21
+nrow(subset(birthdate, day == 21 & month == 4))
+
+# 2. Which month contains the most number of birthdays?
+
+g <- ggplot(data = birthdate, aes(x = month)) + 
+  geom_histogram(binwidth = .1, color = 'black', fill = "#099DD9") + 
+  scale_x_continuous(breaks = seq(1,13,1), limits = c(1,13)) + 
+  xlab("Month of Year") + 
+  ylab("Count of Birthdays per month")
+
+g_data <- ggplot_build(g)
+max_Y_Count <- max(g_data$data[[1]]$y)
+
+g + geom_hline(aes(yintercept = max_Y_Count), colour = "#BB0000", linetype = "dashed") + 
+  geom_text(aes( 0, max_Y_Count, label = max_Y_Count, vjust = -1)) + 
+  ggtitle("Fig.1: Count of birthdays per month",
+          subtitle = paste("Maximum birthdays happen in March. Value:", as.character(max_Y_Count),
+                           sep = " "))
+
+# 3. How many birthdays are in each month?
+birthday_Count_Month <- g_data$data[[1]]$y[g_data$data[[1]]$y != 0]
+
+
+list_month <- list('month' = month_Name, 'birthday_count' = birthday_Count_Month)
+birthday_count_monthwise <- as.data.frame(list_month)
+birthday_count_monthwise$month <- ordered(birthday_count_monthwise$month, levels = month_Name)
+
+birthday_count_monthwise
+
+# 4. Which day of the year has the most number of birthdays?
+birthdate[,"dayofyear"] <- format(birthdate$birthday, "%b %d")
+countDays <- table(birthdate$dayofyear)
+countDays[countDays == max(countDays)]
+
+ggplot(data = birthdate, aes(x = day)) + 
+  geom_bar(aes(color = factor(month), fill = factor(month))) + 
+  geom_hline(aes(yintercept = max(countDays)), colour = "#BB0000", linetype = "dashed") +
+  facet_wrap(~monthName) + 
+  xlab("Day of Month") + 
+  ylab("Count of Birthdays") + 
+  ggtitle("Fig.2: Monthwise distribution of birthdays", 
+          subtitle = paste("Maximum number of birthday in 1 day:",max(countDays)))
+
+# 5. Do you have at least 365 friends that have birthdays on everyday
+#    of the year?
+
+length(countDays)
+
+# Since the count is 348, so there are a few days without birthdays
+# 
+
+rm(birthdate, birthday_count_monthwise, birth_Month_Count, g, g_data, list_month, max_day_of_year, max_Y_Count, month, month_Name, birthday_Count_Month, countDays)
+Outputs: Answer 1:

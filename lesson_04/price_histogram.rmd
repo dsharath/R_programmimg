@@ -1,0 +1,8 @@
+# Create a histogram of the price of
+# all the diamonds in the diamond data set.
+
+# TYPE YOUR CODE BELOW THE LINE
+# =======================================
+ggplot(data=diamonds, aes(x=log(price))) + geom_histogram(aes(fill = cut)) +
+  facet_wrap(~color) +
+   scale_fill_brewer(palette="Spectral")
