@@ -1,3 +1,0 @@
-#friend count
-
-ggplot(aes(x = friend_count), data = pf) +    geom_histogram()
